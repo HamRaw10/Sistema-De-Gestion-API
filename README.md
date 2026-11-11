@@ -27,3 +27,11 @@ El proyecto está construido por carpetas con paquetes y clases para respetar la
 1. **Clonar el repositorio:**
    ```bash
    git clone [https://github.com/HamRaw10/Sistema-De-Gestion-API.git](https://github.com/HamRaw10/Sistema-De-Gestion-API.git)
+   
+---
+
+## Visualización de la página del Proyecto
+
+![img.png](img.png)
+
+En una especie de "Mercado Libre", donde se ve el producto que implemente de prueba, el cual es una coca cola, donde se puede ver el mismo producto, todo esto mediante la conexión de la base de datos con el proyecto en Java
