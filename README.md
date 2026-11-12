@@ -32,6 +32,7 @@ El proyecto está construido por carpetas con paquetes y clases para respetar la
 
 ## Visualización de la página del Proyecto
 
-![img.png](img.png)
+![img_1.png](img_1.png)
 
 En una especie de "Mercado Libre", donde se ve el producto que implemente de prueba, el cual es una coca cola, donde se puede ver el mismo producto, todo esto mediante la conexión de la base de datos con el proyecto en Java
+y el mismo ya se implemento un CRUD, para facilitar al mismo
