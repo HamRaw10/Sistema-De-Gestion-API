@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TechLab Store - Mercado Libre Style (Demo & CRUD)</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        }
+        body {
+            background-color: #ededed;
+            color: #333;
+        }
+        header {
+            background-color: #ffe600;
+            padding: 12px 20px;
+            box-shadow: 0 1px 1px 0 rgba(0,0,0,.1);
+        }
+        .header-content {
+            max-width: 1100px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 20px;
+        }
+        .logo {
+            font-size: 22px;
+            font-weight: 800;
+            color: #2d3277;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .search-bar {
+            flex-grow: 1;
+            max-width: 600px;
+            display: flex;
+            background: #fff;
+            border-radius: 2px;
+            box-shadow: 0 1px 2px 0 rgba(0,0,0,.2);
+            overflow: hidden;
+        }
+        .search-bar input {
+            width: 100%;
+            border: none;
+            padding: 10px 15px;
+            font-size: 14px;
+            outline: none;
+        }
+        .search-bar button {
+            background: #fff;
+            border: none;
+            border-left: 1px solid #e6e6e6;
+            padding: 0 15px;
+            cursor: pointer;
+            color: #666;
+        }
+        .action-bar {
+            max-width: 1100px;
+            margin: 20px auto 10px auto;
+            padding: 0 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .btn-primary {
+            background-color: #3483fa;
+            color: white;
+            border: none;
+            padding: 10px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 14px;
+            transition: background 0.2s;
+        }
+        .btn-primary:hover {
+            background-color: #2968c8;
+        }
+        .main-container {
+            max-width: 1100px;
+            margin: 0 auto 30px auto;
+            display: flex;
+            gap: 20px;
+            padding: 0 10px;
+        }
+        aside {
+            width: 220px;
+            background: #fff;
+            padding: 15px;
+            border-radius: 4px;
+            box-shadow: 0 1px 2px 0 rgba(0,0,0,.1);
+            height: fit-content;
+        }
+        aside h3 {
+            font-size: 16px;
+            margin-bottom: 12px;
+            color: #333;
+            border-bottom: 2px solid #ffe600;
+            padding-bottom: 5px;
+        }
+        .category-list {
+            list-style: none;
+        }
+        .category-list li {
+            margin-bottom: 8px;
+        }
+        .category-list a {
+            text-decoration: none;
+            color: #666;
+            font-size: 14px;
+            display: block;
+            padding: 5px 8px;
+            border-radius: 4px;
+            transition: all 0.2s;
+        }
+        .category-list a:hover, .category-list a.active {
+            background-color: #3483fa;
+            color: #fff;
+            font-weight: 600;
+        }
+        .products-section {
+            flex-grow: 1;
+        }
+        .section-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #333;
+        }
+        .products-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+        .product-card {
+            background: #fff;
+            border-radius: 4px;
+            overflow: hidden;
+            box-shadow: 0 1px 2px 0 rgba(0,0,0,.1);
+            transition: transform 0.2s, box-shadow 0.2s;
+            display: flex;
+            flex-direction: column;
+        }
+        .product-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 4px 12px 0 rgba(0,0,0,.15);
+        }
+        .img-placeholder {
+            height: 130px;
+            background: #f8f8f8;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 35px;
+            color: #ccc;
+            border-bottom: 1px solid #eee;
+        }
+        .card-body {
+            padding: 12px;
+            display: flex;
+            flex-direction: column;
+            flex-grow: 1;
+        }
+        .price {
+            font-size: 20px;
+            font-weight: 400;
+            color: #333;
+            margin-bottom: 4px;
+        }
+        .shipping {
+            color: #00a650;
+            font-size: 12px;
+            font-weight: 600;
+            margin-bottom: 6px;
+        }
+        .product-title {
+            font-size: 13px;
+            color: #666;
+            line-height: 1.3;
+            margin-bottom: 8px;
+            flex-grow: 1;
+        }
+        .category-tag {
+            font-size: 11px;
+            background: #e6f1fe;
+            color: #3483fa;
+            padding: 3px 6px;
+            border-radius: 3px;
+            width: fit-content;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+        .card-actions {
+            display: flex;
+            gap: 6px;
+            border-top: 1px solid #eee;
+            padding-top: 8px;
+        }
+        .no-data {
+            background: #fff;
+            padding: 30px;
+            text-align: center;
+            border-radius: 4px;
+            color: #777;
+            grid-column: 1 / -1;
+        }
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.5);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        .modal-content {
+            background: white;
+            padding: 25px;
+            border-radius: 6px;
+            width: 100%;
+            max-width: 400px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+        .modal-content h3 {
+            margin-bottom: 15px;
+            color: #333;
+        }
+        .form-group {
+            margin-bottom: 12px;
+        }
+        .form-group label {
+            font-size: 13px;
+            display: block;
+            margin-bottom: 4px;
+            color: #555;
+            font-weight: 600;
+        }
+        .form-group input {
+            width: 100%;
+            padding: 8px 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 14px;
+            outline: none;
+        }
+        .modal-buttons {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <div class="header-content">
+        <a href="#" class="logo" onclick="filtrarCategoria('todas')">
+            <span>🛒 TechLab</span>
+        </a>
+        <div class="search-bar">
+            <input type="text" id="searchInput" placeholder="Buscar productos..." onkeyup="buscarProducto()">
+            <button>🔍</button>
+        </div>
+    </div>
+</header>
+
+<div class="action-bar">
+    <h2 class="section-title" id="tituloSeccion">Todos los productos</h2>
+    <button class="btn-primary" onclick="abrirModalCrear()">+ Nuevo Producto</button>
+</div>
+
+<div class="main-container">
+    <aside>
+        <h3>Categorías</h3>
+        <ul class="category-list">
+            <li><a href="#" class="cat-link active" onclick="filtrarCategoria('todas', this)">Todas</a></li>
+            <li><a href="#" class="cat-link" onclick="filtrarCategoria('bebidas', this)">🥤 Bebidas</a></li>
+            <li><a href="#" class="cat-link" onclick="filtrarCategoria('tecnologia', this)">💻 Tecnología</a></li>
+            <li><a href="#" class="cat-link" onclick="filtrarCategoria('general', this)">📦 General</a></li>
+        </ul>
+    </aside>
+
+    <main class="products-section">
+        <div class="products-grid" id="gridProductos">
+            <div class="no-data">Cargando productos desde la API...</div>
+        </div>
+    </main>
+</div>
+
+<div id="modalProducto" class="modal-overlay">
+    <div class="modal-content">
+        <h3 id="modalTitulo">Nuevo Producto</h3>
+        <input type="hidden" id="prodId">
+
+        <div class="form-group">
+            <label>Nombre:</label>
+            <input type="text" id="prodNombre" placeholder="Ej. Coca Cola 1.5L">
+        </div>
+        <div class="form-group">
+            <label>Precio:</label>
+            <input type="number" id="prodPrecio" step="0.01" placeholder="Ej. 1500">
+        </div>
+        <div class="form-group">
+            <label>Stock:</label>
+            <input type="number" id="prodStock" placeholder="Ej. 10">
+        </div>
+
+        <div class="modal-buttons">
+            <button onclick="cerrarModal()" style="background: #e2e8f0; border: none; padding: 8px 15px; border-radius: 4px; cursor: pointer; color: #333; font-weight: 600;">Cancelar</button>
+            <button class="btn-primary" onclick="guardarProducto()">Guardar</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    const API_URL = '/api/productos';
+    let productosGlobales = [];
+    let usandoMock = false;
+
+    // Productos de demostración para cuando la API no esté disponible (ej. GitHub Pages)
+    const productosDemo = [
+        { id: 1, nombre: "Coca Cola 1.5L", precio: 1500, stock: 12, categoria: "Bebidas" },
+        { id: 2, nombre: "Auriculares Bluetooth Tech", precio: 18500, stock: 5, categoria: "Tecnología" },
+        { id: 3, nombre: "Teclado Mecánico RGB", precio: 32000, stock: 3, categoria: "Tecnología" },
+        { id: 4, nombre: "Pack Cuadernos A4", precio: 4200, stock: 20, categoria: "General" }
+    ];
+
+    document.addEventListener("DOMContentLoaded", () => {
+        cargarProductos();
+    });
+
+    async function cargarProductos() {
+        try {
+            const response = await fetch(API_URL);
+            if (!response.ok) throw new Error('API no disponible');
+            productosGlobales = await response.json();
+            usandoMock = false;
+        } catch (error) {
+            console.warn("No se pudo conectar a la API local de Java. Cargando modo demo para vistas web.");
+            productosGlobales = [...productosDemo];
+            usandoMock = true;
+        }
+        renderizarProductos(productosGlobales);
+    }
+
+    function renderizarProductos(productos) {
+        const grid = document.getElementById('gridProductos');
+        if (productos.length === 0) {
+            grid.innerHTML = '<div class="no-data">No se encontraron productos registrados.</div>';
+            return;
+        }
+
+        grid.innerHTML = productos.map(p => {
+            const precioFormatted = p.precio ? p.precio.toLocaleString('es-AR', { style: 'currency', currency: 'ARS' }) : '$0,00';
+            const categoriaNombre = p.categoria || (p.tipo === 'Bebida' ? 'Bebida' : 'General');
+
+            return `
+                <div class="product-card">
+                    <div class="img-placeholder">📦</div>
+                    <div class="card-body">
+                        <div class="price">${precioFormatted}</div>
+                        <div class="shipping">Envío gratis</div>
+                        <div class="product-title">${p.nombre || 'Sin nombre'} (Stock: ${p.stock ?? 0})</div>
+                        <span class="category-tag">${categoriaNombre}</span>
+
+                        <div class="card-actions">
+                            <button onclick="cargarParaEditar(${p.id}, '${p.nombre}', ${p.precio}, ${p.stock})" style="background: #ffe600; color: #333; border: none; padding: 6px; border-radius: 3px; cursor: pointer; font-size: 11px; font-weight: bold; flex: 1;">✏️ Editar</button>
+                            <button onclick="eliminarProducto(${p.id})" style="background: #ff5252; color: white; border: none; padding: 6px 10px; border-radius: 3px; cursor: pointer; font-size: 11px; font-weight: bold;">🗑️</button>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }).join('');
+    }
+
+    function abrirModalCrear() {
+        document.getElementById('modalTitulo').textContent = 'Crear Nuevo Producto';
+        document.getElementById('prodId').value = '';
+        document.getElementById('prodNombre').value = '';
+        document.getElementById('prodPrecio').value = '';
+        document.getElementById('prodStock').value = '';
+        document.getElementById('modalProducto').style.display = 'flex';
+    }
+
+    function cargarParaEditar(id, nombre, precio, stock) {
+        document.getElementById('modalTitulo').textContent = 'Editar Producto';
+        document.getElementById('prodId').value = id;
+        document.getElementById('prodNombre').value = nombre;
+        document.getElementById('prodPrecio').value = precio;
+        document.getElementById('prodStock').value = stock;
+        document.getElementById('modalProducto').style.display = 'flex';
+    }
+
+    function cerrarModal() {
+        document.getElementById('modalProducto').style.display = 'none';
+    }
+
+    async function guardarProducto() {
+        const id = document.getElementById('prodId').value;
+        const producto = {
+            id: id ? parseInt(id) : Date.now(),
+            nombre: document.getElementById('prodNombre').value,
+            precio: parseFloat(document.getElementById('prodPrecio').value),
+            stock: parseInt(document.getElementById('prodStock').value),
+            categoria: "General"
+        };
+
+        if (usandoMock) {
+            if (id) {
+                const index = productosGlobales.findIndex(p => p.id == id);
+                if (index !== -1) productosGlobales[index] = producto;
+            } else {
+                productosGlobales.push(producto);
+            }
+            cerrarModal();
+            renderizarProductos(productosGlobales);
+            return;
+        }
+
+        const metodo = id ? 'PUT' : 'POST';
+        const url = id ? `${API_URL}/${id}` : API_URL;
+
+        try {
+            const response = await fetch(url, {
+                method: metodo,
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(producto)
+            });
+
+            if (!response.ok) throw new Error('Error al guardar');
+
+            cerrarModal();
+            cargarProductos();
+        } catch (error) {
+            alert('Hubo un error al guardar el producto.');
+        }
+    }
+
+    async function eliminarProducto(id) {
+        if (!confirm('¿Estás seguro de que querés eliminar este producto?')) return;
+
+        if (usandoMock) {
+            productosGlobales = productosGlobales.filter(p => p.id != id);
+            renderizarProductos(productosGlobales);
+            return;
+        }
+
+        try {
+            const response = await fetch(`${API_URL}/${id}`, { method: 'DELETE' });
+            if (!response.ok) throw new Error('Error al eliminar');
+            cargarProductos();
+        } catch (error) {
+            alert('Hubo un error al eliminar el producto.');
+        }
+    }
+
+    function filtrarCategoria(categoria, elemento = null) {
+        if (elemento) {
+            document.querySelectorAll('.cat-link').forEach(link => link.classList.remove('active'));
+            elemento.classList.add('active');
+        }
+
+        const titulo = document.getElementById('tituloSeccion');
+
+        if (categoria === 'todas') {
+            titulo.textContent = 'Todos los productos';
+            renderizarProductos(productosGlobales);
+            return;
+        }
+
+        titulo.textContent = `Categoría: ${categoria.charAt(0).toUpperCase() + categoria.slice(1)}`;
+
+        const filtrados = productosGlobales.filter(p => {
+            const cat = (p.categoria || p.tipo || '').toLowerCase();
+            const nombre = (p.nombre || '').toLowerCase();
+            return cat.includes(categoria) || nombre.includes(categoria);
+        });
+
+        renderizarProductos(filtrados);
+    }
+
+    function buscarProducto() {
+        const query = document.getElementById('searchInput').value.toLowerCase();
+        const filtrados = productosGlobales.filter(p =>
+            (p.nombre || '').toLowerCase().includes(query)
+        );
+        renderizarProductos(filtrados);
+    }
+</script>
+
+</body>
+</html>
