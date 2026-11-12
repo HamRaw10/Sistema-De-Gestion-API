@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TechLab Store - Mercado Libre Style (CRUD)</title>
+    <title>TechLab Store - Mercado Libre Style (Demo & CRUD)</title>
     <style>
         * {
             box-sizing: border-box;
@@ -15,7 +15,6 @@
             background-color: #ededed;
             color: #333;
         }
-        /* Header estilo Mercado Libre */
         header {
             background-color: #ffe600;
             padding: 12px 20px;
@@ -62,8 +61,6 @@
             cursor: pointer;
             color: #666;
         }
-
-        /* Barra superior de acciones */
         .action-bar {
             max-width: 1100px;
             margin: 20px auto 10px auto;
@@ -86,8 +83,6 @@
         .btn-primary:hover {
             background-color: #2968c8;
         }
-
-        /* Layout principal */
         .main-container {
             max-width: 1100px;
             margin: 0 auto 30px auto;
@@ -95,8 +90,6 @@
             gap: 20px;
             padding: 0 10px;
         }
-
-        /* Sidebar de Filtros / Categorías */
         aside {
             width: 220px;
             background: #fff;
@@ -132,8 +125,6 @@
             color: #fff;
             font-weight: 600;
         }
-
-        /* Grid de Productos */
         .products-section {
             flex-grow: 1;
         }
@@ -220,8 +211,6 @@
             color: #777;
             grid-column: 1 / -1;
         }
-
-        /* Modal Styles */
         .modal-overlay {
             display: none;
             position: fixed;
@@ -261,9 +250,6 @@
             font-size: 14px;
             outline: none;
         }
-        .form-group input:focus {
-            border-color: #3483fa;
-        }
         .modal-buttons {
             display: flex;
             justify-content: flex-end;
@@ -292,7 +278,6 @@
 </div>
 
 <div class="main-container">
-    <!-- Filtro por Categorías -->
     <aside>
         <h3>Categorías</h3>
         <ul class="category-list">
@@ -303,7 +288,6 @@
         </ul>
     </aside>
 
-    <!-- Lista de Productos -->
     <main class="products-section">
         <div class="products-grid" id="gridProductos">
             <div class="no-data">Cargando productos desde la API...</div>
@@ -311,7 +295,6 @@
     </main>
 </div>
 
-<!-- Modal para Crear / Editar -->
 <div id="modalProducto" class="modal-overlay">
     <div class="modal-content">
         <h3 id="modalTitulo">Nuevo Producto</h3>
@@ -340,6 +323,15 @@
 <script>
     const API_URL = '/api/productos';
     let productosGlobales = [];
+    let usandoMock = false;
+
+    // Productos de demostración para cuando la API no esté disponible (ej. GitHub Pages)
+    const productosDemo = [
+        { id: 1, nombre: "Coca Cola 1.5L", precio: 1500, stock: 12, categoria: "Bebidas" },
+        { id: 2, nombre: "Auriculares Bluetooth Tech", precio: 18500, stock: 5, categoria: "Tecnología" },
+        { id: 3, nombre: "Teclado Mecánico RGB", precio: 32000, stock: 3, categoria: "Tecnología" },
+        { id: 4, nombre: "Pack Cuadernos A4", precio: 4200, stock: 20, categoria: "General" }
+    ];
 
     document.addEventListener("DOMContentLoaded", () => {
         cargarProductos();
@@ -348,16 +340,15 @@
     async function cargarProductos() {
         try {
             const response = await fetch(API_URL);
-            if (!response.ok) throw new Error('Error al obtener datos');
+            if (!response.ok) throw new Error('API no disponible');
             productosGlobales = await response.json();
-            renderizarProductos(productosGlobales);
+            usandoMock = false;
         } catch (error) {
-            document.getElementById('gridProductos').innerHTML = `
-                <div class="no-data" style="color: #e74c3c;">
-                    ⚠️ Error al conectar con la API de Spring Boot. Verificá que el servidor y MySQL estén activos.
-                </div>
-            `;
+            console.warn("No se pudo conectar a la API local de Java. Cargando modo demo para vistas web.");
+            productosGlobales = [...productosDemo];
+            usandoMock = true;
         }
+        renderizarProductos(productosGlobales);
     }
 
     function renderizarProductos(productos) {
@@ -415,10 +406,24 @@
     async function guardarProducto() {
         const id = document.getElementById('prodId').value;
         const producto = {
+            id: id ? parseInt(id) : Date.now(),
             nombre: document.getElementById('prodNombre').value,
             precio: parseFloat(document.getElementById('prodPrecio').value),
-            stock: parseInt(document.getElementById('prodStock').value)
+            stock: parseInt(document.getElementById('prodStock').value),
+            categoria: "General"
         };
+
+        if (usandoMock) {
+            if (id) {
+                const index = productosGlobales.findIndex(p => p.id == id);
+                if (index !== -1) productosGlobales[index] = producto;
+            } else {
+                productosGlobales.push(producto);
+            }
+            cerrarModal();
+            renderizarProductos(productosGlobales);
+            return;
+        }
 
         const metodo = id ? 'PUT' : 'POST';
         const url = id ? `${API_URL}/${id}` : API_URL;
@@ -435,25 +440,25 @@
             cerrarModal();
             cargarProductos();
         } catch (error) {
-            alert('Hubo un error al guardar el producto en la base de datos.');
-            console.error(error);
+            alert('Hubo un error al guardar el producto.');
         }
     }
 
     async function eliminarProducto(id) {
         if (!confirm('¿Estás seguro de que querés eliminar este producto?')) return;
 
+        if (usandoMock) {
+            productosGlobales = productosGlobales.filter(p => p.id != id);
+            renderizarProductos(productosGlobales);
+            return;
+        }
+
         try {
-            const response = await fetch(`${API_URL}/${id}`, {
-                method: 'DELETE'
-            });
-
+            const response = await fetch(`${API_URL}/${id}`, { method: 'DELETE' });
             if (!response.ok) throw new Error('Error al eliminar');
-
             cargarProductos();
         } catch (error) {
             alert('Hubo un error al eliminar el producto.');
-            console.error(error);
         }
     }
 
